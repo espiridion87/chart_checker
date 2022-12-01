@@ -1,3 +1,6 @@
+#!/usr/bin/env sh
+
+
 #! /usr/bin/env bash
 #
 #/ Usage: chart_checker <chart> <index>
@@ -49,7 +52,7 @@ main() {
         error "Minor version on chart is older than the last published"
         exit 1
     elif [ $chart_patch -le $index_patch ]; then
-        error "Minor version on chart is older than the last published"
+        error "Patch version on chart is older than the last published"
         exit 1
     fi
 }
@@ -58,7 +61,7 @@ main() {
 #
 
 error() {
-    printf "${red}!!! %s${reset}\\n" "${*}" 1>&2
+    echo "${*}" 1>&2
 }
 
 
