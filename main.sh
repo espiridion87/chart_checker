@@ -24,10 +24,6 @@ set -o pipefail
 #}}}
 #{{{ Variables
 IFS=$'\t\n'   # Split on newlines and tabs (but not on spaces)
-script_name=$(basename "${0}")
-script_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-readonly script_name script_dir
-
 #}}}
 
 main() {
@@ -45,15 +41,15 @@ main() {
     index_minor=$(get_minor_index "${appName}" "${index}" "${index_major}")
     index_patch=$(get_patch_index "${appName}" "${index}" "${index_major}" "${index_minor}")
 
-    if [ $chart_major -lt $index_major ]; then
+    if [ "${chart_major}" -lt "${index_major}" ]; then
         error "Major version on chart is older than the last published"
         exit 1
-    elif [ $chart_major -eq $index_major ]; then
-        if [ $chart_minor -lt $index_minor ]; then
+    elif [ "${chart_major}" -eq "${index_major}" ]; then
+        if [ "${chart_minor}" -lt "${index_minor}" ]; then
             error "Minor version on chart is older than the last published"
             exit 1
-        elif [ $chart_minor -eq $index_minor ]; then
-            if [ $chart_patch -le $index_patch ]; then
+        elif [ "${chart_minor}" -eq "${index_minor}" ]; then
+            if [ "${chart_patch}" -le "${index_patch}" ]; then
                 error "Patch version on chart is older than the last published"
                 exit 1
             fi
@@ -76,31 +72,35 @@ get_major() {
 
 get_minor() {
     version=$1
-    echo ${version} | sed 's/.*\.\([[:digit:]]\+\)\..*/\1/'
+    echo "${version}" | sed 's/.*\.\([[:digit:]]\+\)\..*/\1/'
 }
 
 get_patch() {
     version=$1
-    echo ${version} | sed 's/.*\..*\.\([[:digit:]]\+\)/\1/'
+    echo "${version}" | sed 's/.*\..*\.\([[:digit:]]\+\)/\1/'
 }
 
 get_major_index() {
     appName=$1
     index=$2
-    yq ".entries.${appName}.[].version" ${index} \
-        | sed 's/^/- /g' \
-        | yq "map(match(\"(\\d+)\..*\")) | map(.captures) | flatten(1) | map(.string)" \
-        | sed 's/"//g' | yq 'sort | reverse | .[0]'
+
+    allVersionsForAppName=".entries.${appName} | map(.version)"
+    arrayOfMajorVersions='map(match("(\d+)\..*")) | map(.captures.[0].string) | unique | map(. tag = "!!int")'
+    latestVersion="sort | reverse | .[0]"
+
+    yq "${allVersionsForAppName} | ${arrayOfMajorVersions} | ${latestVersion}" "${index}"
 }
 
 get_minor_index() {
     appName=$1
     index=$2
     major=$3
-    yq ".entries.${appName}.[].version | select(. == \"${major}.*\")" ${index} \
-        | sed 's/^/- /g' \
-        | yq "map(match(\".*\.(\\d+)\..*\")) | map(.captures) | flatten(1) | map(.string)" \
-        | sed 's/"//g' | yq 'sort | reverse | .[0]'
+
+    allMinorVerForAppANDMajor=".entries.${appName} | map(.version) | map(select(. == \"${major}.*\"))"
+    minorSorted='map(match(".*\.(\d+)\..*")) | map(.captures.[0].string) | unique | map(. tag = "!!int")'
+    latestVersion="sort | reverse | .[0]"
+
+    yq "${allMinorVerForAppANDMajor} | ${minorSorted} | ${latestVersion}" "${index}"
 }
 
 get_patch_index() {
@@ -108,10 +108,12 @@ get_patch_index() {
     index=$2
     major=$3
     minor=$4
-    yq ".entries.${appName}.[].version | select(. == \"${major}.${minor}.*\")" ${index} \
-        | sed 's/^/- /g' \
-        | yq "map(match(\".*\..*\.(\\d+)\")) | map(.captures) | flatten(1) | map(.string)" \
-        | sed 's/"//g' | yq 'sort | reverse | .[0]'
+
+    allPatchMajorMinorApp=".entries.${appName} | map(.version) | map(select(. == \"${major}.${minor}.*\"))"
+    pachMinor='map(match(".*\.(\d+)*")) | map(.captures.[0].string) | unique | map(. tag = "!!int")'
+    latestVersion="sort | reverse | .[0]"
+
+    yq "${allPatchMajorMinorApp} | ${pachMinor} | ${latestVersion}" "${index}"
 }
 
 #}}}
