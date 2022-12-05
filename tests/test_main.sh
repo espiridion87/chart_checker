@@ -10,7 +10,7 @@ testChartGT() {
     indexpath="assets/index.yaml"
 
     # Execute
-    actualErrorMsg=$(bash ../main.sh "${chartpath}" "${indexpath}"  2>&1 > /dev/null )
+    actualErrorMsg=$(bash ../main.bash "${chartpath}" "${indexpath}"  2>&1 > /dev/null )
     actualExitCode=$?
 
     # Verify
@@ -29,7 +29,7 @@ testChartLT_major() {
     indexpath="assets/index.yaml"
 
     # Execute
-    actualErrorMsg=$(bash ../main.sh "${chartpath}" "${indexpath}"  2>&1 > /dev/null )
+    actualErrorMsg=$(bash ../main.bash "${chartpath}" "${indexpath}"  2>&1 > /dev/null )
     actualExitCode=$?
 
     # Verify
@@ -48,7 +48,7 @@ testChartLT_minor() {
     indexpath="assets/index.yaml"
 
     # Execute
-    actualErrorMsg=$(bash ../main.sh "${chartpath}" "${indexpath}"  2>&1 > /dev/null )
+    actualErrorMsg=$(bash ../main.bash "${chartpath}" "${indexpath}"  2>&1 > /dev/null )
     actualExitCode=$?
 
     # Verify
@@ -67,7 +67,7 @@ testChartLT_patch() {
     indexpath="assets/index.yaml"
 
     # Execute
-    actualErrorMsg=$(bash ../main.sh "${chartpath}" "${indexpath}"  2>&1 > /dev/null )
+    actualErrorMsg=$(bash ../main.bash "${chartpath}" "${indexpath}"  2>&1 > /dev/null )
     actualExitCode=$?
 
     # Verify
@@ -86,7 +86,7 @@ testChartEq_all() {
     indexpath="assets/index.yaml"
 
     # Execute
-    actualErrorMsg=$(bash ../main.sh "${chartpath}" "${indexpath}"  2>&1 > /dev/null )
+    actualErrorMsg=$(bash ../main.bash "${chartpath}" "${indexpath}"  2>&1 > /dev/null )
     actualExitCode=$?
 
     # Verify
