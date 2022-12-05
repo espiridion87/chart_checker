@@ -6,7 +6,7 @@
 
 lint:
 	@echo "Starting static code analisys"
-	shellcheck main.sh
+	shellcheck main.bash
 
 test:
 	@echo "Starting testing"
